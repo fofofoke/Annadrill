@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
-import keyboard
 import serial
 import serial.tools.list_ports
 
@@ -71,8 +70,8 @@ class F12AutoClicker:
 
         ttk.Label(frame, text="F11 키로 시작/정지 토글", foreground="gray").grid(row=10, column=0, columnspan=3)
 
-        # F11 핫키 등록
-        keyboard.add_hotkey("f11", self._on_f11)
+        # F11 핫키 등록 (tkinter 바인딩 - 창 포커스 필요 없음)
+        self.root.bind_all("<F11>", lambda e: self.toggle())
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
         self.root.mainloop()
@@ -129,9 +128,6 @@ class F12AutoClicker:
         except serial.SerialException:
             return False
 
-    def _on_f11(self):
-        self.root.after(0, self.toggle)
-
     def toggle(self):
         if self.running:
             self.stop()
@@ -181,7 +177,6 @@ class F12AutoClicker:
 
     def on_close(self):
         self.running = False
-        keyboard.unhook_all()
         if self.ser and self.ser.is_open:
             self.ser.close()
         self.root.destroy()
